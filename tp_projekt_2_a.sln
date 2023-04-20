@@ -1,31 +1,98 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.3.32929.385
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tp_projekt_2_a", "tp_projekt_2_a\tp_projekt_2_a.vcxproj", "{8F18138A-D79B-429B-92AB-542DF417029E}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8F18138A-D79B-429B-92AB-542DF417029E}.Debug|x64.ActiveCfg = Debug|x64
-		{8F18138A-D79B-429B-92AB-542DF417029E}.Debug|x64.Build.0 = Debug|x64
-		{8F18138A-D79B-429B-92AB-542DF417029E}.Debug|x86.ActiveCfg = Debug|Win32
-		{8F18138A-D79B-429B-92AB-542DF417029E}.Debug|x86.Build.0 = Debug|Win32
-		{8F18138A-D79B-429B-92AB-542DF417029E}.Release|x64.ActiveCfg = Release|x64
-		{8F18138A-D79B-429B-92AB-542DF417029E}.Release|x64.Build.0 = Release|x64
-		{8F18138A-D79B-429B-92AB-542DF417029E}.Release|x86.ActiveCfg = Release|Win32
-		{8F18138A-D79B-429B-92AB-542DF417029E}.Release|x86.Build.0 = Release|Win32
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {34D5D890-0606-483F-8689-C404DC8F0B9B}
-	EndGlobalSection
-EndGlobal
+#include <iostream>
+#include <string>
+#include <stack>
+#include <cmath>
+#include <cctype>
+using namespace std;
+
+void zamien_notacje(string przed_zamiana, string&po_zamianie);
+
+int main()
+{
+	string zwykla;
+	string odwr_polska;
+	odwr_polska = {};
+	getline(cin, zwykla);
+	zamien_notacje(zwykla, odwr_polska);
+	cout << odwr_polska;
+
+	return 0;
+}
+
+void zamien_notacje(string przed_zamiana, string& po_zamianie)
+{
+	stack <char> znaki;
+	bool czy_byla_cyfra=false;
+
+	for (int i = 0; i < przed_zamiana.length() ; i++)
+	{
+		if (isdigit(przed_zamiana[i]) == true)
+		{
+			if (czy_byla_cyfra == true)
+				po_zamianie += przed_zamiana[i];
+			else
+			{
+				po_zamianie += ' ';
+				po_zamianie += przed_zamiana[i];
+				czy_byla_cyfra = true;
+			}
+		}
+		else if (przed_zamiana[i] == '+' or przed_zamiana[i] == '-')
+		{
+			if (znaki.top() == '+' or znaki.top() == '-')
+			{
+				while (znaki.top() == '+' or znaki.top()=='-')
+				{
+					przed_zamiana += ' ';
+					przed_zamiana += znaki.top();
+					znaki.pop();
+				}
+			}
+			czy_byla_cyfra = false;
+			znaki.push(przed_zamiana[i]);
+		}
+		else if (przed_zamiana[i] == '*' or przed_zamiana[i] == '/')
+		{
+			while (znaki.top() == '+' or znaki.top() == '-' or znaki.top() == '*' or znaki.top() == '/')
+			{
+				przed_zamiana += ' ';
+				przed_zamiana += znaki.top();
+				znaki.pop();
+			}
+
+			czy_byla_cyfra = false;
+			znaki.push(przed_zamiana[i]);
+		}
+		else if (przed_zamiana[i] == '^')
+		{
+			while (znaki.top() == '+' or znaki.top() == '-' or znaki.top() == '*' or znaki.top() == '/' or znaki.top() == '^')
+			{
+				przed_zamiana += ' ';
+				przed_zamiana += znaki.top();
+				znaki.pop();
+			}
+			czy_byla_cyfra = false;
+			znaki.push(przed_zamiana[i]);
+		}
+		else if (przed_zamiana[i] == '(')
+		{
+			czy_byla_cyfra = false;
+			znaki.push(przed_zamiana[i]);
+		}
+		else if (przed_zamiana[i] == ')')
+		{
+			while (znaki.top() != '(')
+			{
+				po_zamianie += ' ';
+				po_zamianie += znaki.top();
+				znaki.pop();
+				czy_byla_cyfra = false;
+			}
+		}
+	}
+	while (!znaki.empty())
+	{
+		po_zamianie += ' ';
+		po_zamianie += znaki.top();
+	}
+}
