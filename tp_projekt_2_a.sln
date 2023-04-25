@@ -2,31 +2,64 @@
 #include <string>
 #include <stack>
 #include <cmath>
-#include <cctype>
-using namespace std;
+#include <cstdlib>
+class dzialanie
+{
+public:
+	int liczba_1, liczba_2;
+	char znak;
 
-void zamien_notacje(string przed_zamiana, string&po_zamianie);
+	int oblicz()
+	{
+		int wynik;
+		switch (znak)
+		{
+		case '+': wynik = liczba_1 + liczba_2; break;
+		case '-': wynik = liczba_1 - liczba_2; break; 
+		case '*': wynik = liczba_1 * liczba_2; break;
+		case '/' : 
+		{
+			if (liczba_2 != 0)
+				wynik = liczba_1 / liczba_2;
+			break;
+		}
+		case '^': wynik = pow(liczba_1, liczba_2); break;
+		} 
+		return wynik;
+	}
+};
+using namespace std;
+string zamien_notacje(string przed_zamiana);
+bool czy_cyfra(char znak);
+int oblicz_calosc(string dzialania);
 
 int main()
 {
 	string zwykla;
 	string odwr_polska;
-	odwr_polska = {};
-	getline(cin, zwykla);
-	zamien_notacje(zwykla, odwr_polska);
-	cout << odwr_polska;
 
+	getline(cin, zwykla);
+	odwr_polska = zamien_notacje(zwykla);
+	cout << "Zapis dzialan w odwroconej notacji polskiej: " << endl << odwr_polska << endl;
+	cout << "Wynik obliczen: " << oblicz_calosc(odwr_polska) << endl;
 	return 0;
 }
 
-void zamien_notacje(string przed_zamiana, string& po_zamianie)
+bool czy_cyfra(char znak)
+{
+	if (znak == '0' or znak == '1' or znak == '2' or znak == '3' or znak == '4' or znak == '5' or znak == '6' or znak == '7' or znak == '8' or znak == '9')
+		return true;
+	return false;
+}
+string zamien_notacje(string przed_zamiana)
 {
 	stack <char> znaki;
 	bool czy_byla_cyfra=false;
+	string po_zamianie;
 
-	for (int i = 0; i < przed_zamiana.length() ; i++)
+	for (int i = 0; i < przed_zamiana.length(); i++)
 	{
-		if (isdigit(przed_zamiana[i]) == true)
+		if (czy_cyfra(przed_zamiana[i]) == true)
 		{
 			if (czy_byla_cyfra == true)
 				po_zamianie += przed_zamiana[i];
@@ -39,33 +72,29 @@ void zamien_notacje(string przed_zamiana, string& po_zamianie)
 		}
 		else if (przed_zamiana[i] == '+' or przed_zamiana[i] == '-')
 		{
-			if (znaki.top() == '+' or znaki.top() == '-')
+			while (!znaki.empty() and (znaki.top() == '+' or znaki.top() == '-'))
 			{
-				while (znaki.top() == '+' or znaki.top()=='-')
-				{
-					przed_zamiana += ' ';
-					przed_zamiana += znaki.top();
-					znaki.pop();
-				}
+				przed_zamiana += ' ';
+				przed_zamiana += znaki.top();
+				znaki.pop();
 			}
 			czy_byla_cyfra = false;
 			znaki.push(przed_zamiana[i]);
 		}
 		else if (przed_zamiana[i] == '*' or przed_zamiana[i] == '/')
 		{
-			while (znaki.top() == '+' or znaki.top() == '-' or znaki.top() == '*' or znaki.top() == '/')
+			while (!znaki.empty() and (znaki.top() == '+' or znaki.top() == '-' or znaki.top() == '*' or znaki.top() == '/'))
 			{
 				przed_zamiana += ' ';
 				przed_zamiana += znaki.top();
 				znaki.pop();
 			}
-
 			czy_byla_cyfra = false;
 			znaki.push(przed_zamiana[i]);
 		}
 		else if (przed_zamiana[i] == '^')
 		{
-			while (znaki.top() == '+' or znaki.top() == '-' or znaki.top() == '*' or znaki.top() == '/' or znaki.top() == '^')
+			while (!znaki.empty() and (znaki.top() == '+' or znaki.top() == '-' or znaki.top() == '*' or znaki.top() == '/' or znaki.top() == '^'))
 			{
 				przed_zamiana += ' ';
 				przed_zamiana += znaki.top();
@@ -81,7 +110,7 @@ void zamien_notacje(string przed_zamiana, string& po_zamianie)
 		}
 		else if (przed_zamiana[i] == ')')
 		{
-			while (znaki.top() != '(')
+			while (!znaki.empty() and znaki.top() != '(')
 			{
 				po_zamianie += ' ';
 				po_zamianie += znaki.top();
@@ -92,7 +121,58 @@ void zamien_notacje(string przed_zamiana, string& po_zamianie)
 	}
 	while (!znaki.empty())
 	{
-		po_zamianie += ' ';
-		po_zamianie += znaki.top();
+		if (znaki.top() == '(')
+			znaki.pop();
+		else
+		{
+			po_zamianie += ' ';
+			po_zamianie += znaki.top();
+			znaki.pop();
+		}
 	}
+	return po_zamianie;
+}
+int oblicz_calosc(string dzialania)
+{
+	stack <string> liczby;
+	int wynik_koncowy;
+	string l; 
+	bool czy_byla_cyfra = false;
+
+	for (int i = 0; i < dzialania.length(); i++)
+	{
+		if (czy_cyfra(dzialania[i]) == true)
+		{
+			l += dzialania[i];
+			czy_byla_cyfra = true;
+		}
+		else if(dzialania[i] == ' ')
+		{
+			if (czy_byla_cyfra==true)
+			{
+				liczby.push(l);
+				czy_byla_cyfra = false;
+				l = {};
+			}
+		}
+		else if (dzialania[i] == '+' or dzialania[i] == '-' or dzialania[i] == '*' or dzialania[i] == '/' or dzialania[i] == '^')
+		{
+			dzialanie* a = new dzialanie; 
+			a->liczba_2 = atoi(liczby.top().c_str());
+			liczby.pop();
+			a->liczba_1 = atoi(liczby.top().c_str());
+			liczby.pop();
+			a->znak = dzialania[i];
+			int pomocniczy = a->oblicz();
+			delete a;
+			string pomocniczy2 = to_string(pomocniczy);
+			liczby.push(pomocniczy2);
+		}
+	}
+	if (!liczby.empty())
+	{
+		wynik_koncowy = atoi(liczby.top().c_str());
+		liczby.pop();
+	}
+	return wynik_koncowy;
 }
