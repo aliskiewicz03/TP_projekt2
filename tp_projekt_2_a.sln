@@ -37,7 +37,7 @@ int main()
 {
 	string zwykla;
 	string odwr_polska;
-
+	cout << "Podaj ciag dzialan: " << endl;
 	getline(cin, zwykla);
 	odwr_polska = zamien_notacje(zwykla);
 	cout << "Zapis dzialan w odwroconej notacji polskiej: " << endl << odwr_polska << endl;
@@ -72,10 +72,10 @@ string zamien_notacje(string przed_zamiana)
 		}
 		else if (przed_zamiana[i] == '+' or przed_zamiana[i] == '-')
 		{
-			while (!znaki.empty() and (znaki.top() == '+' or znaki.top() == '-'))
+			while (!znaki.empty() and znaki.top()!='(')
 			{
-				przed_zamiana += ' ';
-				przed_zamiana += znaki.top();
+				po_zamianie += ' ';
+				po_zamianie += znaki.top();
 				znaki.pop();
 			}
 			czy_byla_cyfra = false;
@@ -83,10 +83,10 @@ string zamien_notacje(string przed_zamiana)
 		}
 		else if (przed_zamiana[i] == '*' or przed_zamiana[i] == '/')
 		{
-			while (!znaki.empty() and (znaki.top() == '+' or znaki.top() == '-' or znaki.top() == '*' or znaki.top() == '/'))
+			while (!znaki.empty() and (znaki.top() == '^' or znaki.top() == '*' or znaki.top() == '/'))
 			{
-				przed_zamiana += ' ';
-				przed_zamiana += znaki.top();
+				po_zamianie += ' ';
+				po_zamianie += znaki.top();
 				znaki.pop();
 			}
 			czy_byla_cyfra = false;
@@ -94,10 +94,10 @@ string zamien_notacje(string przed_zamiana)
 		}
 		else if (przed_zamiana[i] == '^')
 		{
-			while (!znaki.empty() and (znaki.top() == '+' or znaki.top() == '-' or znaki.top() == '*' or znaki.top() == '/' or znaki.top() == '^'))
+			while (!znaki.empty() and znaki.top() == '^')
 			{
-				przed_zamiana += ' ';
-				przed_zamiana += znaki.top();
+				po_zamianie += ' ';
+				po_zamianie += znaki.top();
 				znaki.pop();
 			}
 			czy_byla_cyfra = false;
@@ -117,6 +117,10 @@ string zamien_notacje(string przed_zamiana)
 				znaki.pop();
 				czy_byla_cyfra = false;
 			}
+		}
+		else if (przed_zamiana[i] == ' ')
+		{
+			czy_byla_cyfra = false;
 		}
 	}
 	while (!znaki.empty())
