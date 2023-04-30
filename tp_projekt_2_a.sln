@@ -3,6 +3,8 @@
 #include <stack>
 #include <cmath>
 #include <cstdlib>
+#include <future>
+
 class dzialanie
 {
 public:
@@ -29,19 +31,25 @@ public:
 	}
 };
 using namespace std;
-string zamien_notacje(string przed_zamiana);
 bool czy_cyfra(char znak);
+string zamien_notacje(string przed_zamiana);
 int oblicz_calosc(string dzialania);
 
 int main()
 {
 	string zwykla;
 	string odwr_polska;
+
+	cout << "DOMINIKA KROL 193588 ALICJA LISKIEWICZ 193096 ACiR gr.2" << endl << "PROJEKT 2, ZADANIE 9" << endl;
 	cout << "Podaj ciag dzialan: " << endl;
 	getline(cin, zwykla);
 	odwr_polska = zamien_notacje(zwykla);
+
+	future <int> wynik_obliczen = async(oblicz_calosc, odwr_polska);
 	cout << "Zapis dzialan w odwroconej notacji polskiej: " << endl << odwr_polska << endl;
-	cout << "Wynik obliczen: " << oblicz_calosc(odwr_polska) << endl;
+	cout << "Wynik obliczen: " << endl;
+	int wynik_koncowy = wynik_obliczen.get();
+	cout << wynik_koncowy << endl;
 	return 0;
 }
 
@@ -51,6 +59,7 @@ bool czy_cyfra(char znak)
 		return true;
 	return false;
 }
+
 string zamien_notacje(string przed_zamiana)
 {
 	stack <char> znaki;
@@ -136,6 +145,7 @@ string zamien_notacje(string przed_zamiana)
 	}
 	return po_zamianie;
 }
+
 int oblicz_calosc(string dzialania)
 {
 	stack <string> liczby;
